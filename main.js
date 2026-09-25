@@ -391,8 +391,9 @@
         [[1108, 462, 362, 30], "<b>Extra Effort</b>, switched on once: it stays on for every " +
           "subject that follows. More on it in step 3."]
       ],
-      tip: "Images, SVGs and STLs are kept in <b>Documents\\Standee Maker</b>, not in the program " +
-           "folder: uninstalling does not take your work with it." },
+      tip: "<b>Best results</b>, in order: line art, then PNGs with a transparent background, " +
+           "then pictures with clear edges on a plain background. Photos work too, with more " +
+           "touch-up." },
 
     { ch: 0, img: "added", size: SHOT,
       title: "Pick it and look",
@@ -406,7 +407,9 @@
         [[587, 169, 131, 33], "<b>Remove background</b> opens the cut-out window. A flat white " +
           "background would be read correctly anyway, but a real cut-out gives a cleaner edge, " +
           "and with a photo it is the step that makes the difference."]
-      ] },
+      ],
+      tip: "Images, SVGs and STLs are kept in <b>Documents\\Standee Maker</b>, not in the program " +
+           "folder: uninstalling does not take your work with it." },
 
     { ch: 1, img: "cutout-wand", size: BOARD,
       title: "Three clicks with the wand",
