@@ -516,7 +516,12 @@ b{font-weight:600}
 }
 
 /* ------------------------------------------------------------------- faq */
-.faq-wrap{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:48px;align-items:start}
+/* Le risposte arrivano fin dove arrivano le righe che le separano: a larghezza fissa in caratteri
+   sotto righe piu' lunghe andavano a capo lasciando una fascia vuota a
+   destra. E' la colonna delle domande ad avere la misura giusta per leggere
+   (44em, circa 85 caratteri per riga), a filo del bordo destro della pagina;
+   lo spazio in piu' va a quella del titolo. */
+.faq-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,44em);gap:48px;align-items:start}
 .faq-side{position:sticky;top:96px;display:flex;flex-direction:column;gap:14px}
 .faq-side p{color:var(--ink-soft);font-size:16px}
 .faq{border-top:1px solid var(--rule)}
@@ -534,7 +539,7 @@ b{font-weight:600}
 .faq summary::after{transform:rotate(90deg)}
 .faq details[open] summary::after{transform:rotate(0)}
 .faq summary:hover{color:var(--amber-ink)}
-.faq .answer{padding:0 2px 20px;color:var(--ink-soft);font-size:clamp(16px,1.05vw,18px);max-width:64ch}
+.faq .answer{padding:0 2px 20px;color:var(--ink-soft);font-size:clamp(16px,1.05vw,18px);text-wrap:pretty}
 .faq .answer b{color:var(--ink);font-weight:600}
 .faq{interpolate-size:allow-keywords}
 .faq summary{transition:color .25s}
