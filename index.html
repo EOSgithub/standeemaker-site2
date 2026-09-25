@@ -29,7 +29,7 @@
 <!-- ?v= su foglio e script: GitHub Pages li lascia in cache dieci minuti, e una
      pagina nuova con lo script vecchio si rompe. Si alza a ogni modifica di
      styles.css o main.js, come TURN_V per le viste. -->
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 <div class="sentinel" aria-hidden="true"></div>
@@ -226,6 +226,10 @@
           <li><svg class="i tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Two computers per licence, movable</span></li>
           <li><svg class="i tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Free updates for all of version 1.x</span></li>
           <li><svg class="i cross" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span>No selling the parts, and no making them to order</span></li>
+          <!-- il passaggio a Commercial: dove nasce l'obiezione ("e se poi voglio
+               vendere?"), subito sotto il limite. Prezzo = differenza fra le due
+               edizioni (Termini di vendita 4.1 e 4.3, EULA 3.5). -->
+          <li class="upgrade"><svg class="i up" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg><span><span class="ph">Upgrade to Commercial any time:</span> <span class="ph">pay the <b>&euro;80</b> difference</span></span></li>
         </ul>
         <button class="btn btn-block" type="button" data-open="dlg-buy" data-edition="pro">Buy Pro</button>
       </div>
@@ -318,6 +322,12 @@
           <div class="answer">That is SmartScreen. Windows shows it for downloads it has not
           seen many times yet, and every new release of a small program starts there. Choose
           <b>More info</b>, then <b>Run anyway</b>. Download the setup only from this page.</div>
+        </details>
+        <details>
+          <summary>Can I start with Pro and upgrade later?</summary>
+          <div class="answer">Yes, at any time, by paying the difference: <b>&euro;80</b>. Nothing
+          to reinstall, and the Commercial licence then covers what you already printed with
+          Pro too.</div>
         </details>
         <details>
           <summary>What if it turns out not to be for me?</summary>

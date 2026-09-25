@@ -513,6 +513,9 @@ b{font-weight:600}
 .plan li .i{width:17px;height:17px;margin-top:4px;stroke-width:2.25}
 .plan .tick{color:var(--amber)}
 .plan .cross{color:var(--ink-soft);opacity:.7}
+.plan .up{color:var(--amber)}
+/* il passaggio a Commercial si stacca dai diritti con un filo sopra */
+.plan li.upgrade{margin-top:4px;padding-top:12px;border-top:1px dashed var(--rule)}
 .plan.dark .cross{color:var(--slab-soft)}
 .plan .btn{margin-top:auto}
 .plan.dark .btn-ghost{color:var(--slab-ink);border-color:var(--slab-rule)}
