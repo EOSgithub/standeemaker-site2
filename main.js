@@ -83,7 +83,13 @@
     if (!views[i]) {
       var im = views[i] = new Image();
       im.src = turnSrc(i);
+      // Decodificata, la vista diventa un ImageBitmap: sta gia' pronta per la
+      // scheda grafica, e disegnarla a ogni passo del giro costa meno di
+      // disegnare l'<img>. Dove non c'e', resta l'immagine.
       (im.decode ? im.decode() : new Promise(function (ok) { im.onload = ok; }))
+        .then(function () {
+          return window.createImageBitmap ? createImageBitmap(im).then(function (bm) { views[i] = bm; }, function () {}) : null;
+        })
         .then(function () { ready[i] = true; if (i === turnAt) { paint(); } })
         .catch(function () {});
     }
@@ -98,11 +104,35 @@
     ctx.drawImage(views[turnAt], 0, 0, canvas.width, canvas.height);
     turnBox.classList.add("live");
   }
+  // Le viste si chiedono a partire da quelle piu' vicine alla vista di adesso,
+  // alternando i due versi (0, 1, 71, 2, 70...): in ordine 0..71, trascinando
+  // verso destra (71, 70, 69...) le viste che servivano erano le ultime della
+  // coda, e sul telefono il pezzo restava fermo e poi saltava. Il browser le
+  // scarica nell'ordine in cui le si chiede.
+  function turnNear(count) {
+    for (var d = 0; d <= count; d++) {
+      view(wrap(turnAt + d));
+      if (d) { view(wrap(turnAt - d)); }
+    }
+  }
   var turnLoaded = false;
   function turnLoad() {                      // tutte le viste, la prima volta che servono
     if (turnLoaded) return;
     turnLoaded = true;
-    for (var i = 0; i < TURN_N; i++) { view(i); }
+    turnNear(TURN_N / 2);
+  }
+  // Prima ancora del tocco, a pagina ferma e col pezzo in vista, le dodici
+  // viste piu' vicine (60 gradi per parte, un paio di centinaia di KB): sul
+  // telefono il tocco e l'inizio del giro sono lo stesso istante, e senza
+  // questo il primo giro partiva a vuoto. Le altre arrivano al primo tocco.
+  if ("IntersectionObserver" in window) {
+    var turnSeen = new IntersectionObserver(function (list) {
+      if (!list[0].isIntersecting) return;
+      turnSeen.disconnect();
+      var idle = window.requestIdleCallback || function (f) { return setTimeout(f, 1200); };
+      idle(function () { if (!turnLoaded) turnNear(12); }, { timeout: 2500 });
+    });
+    turnSeen.observe(turnBox);
   }
   function turnTo(p) {
     turnPos = ((p % TURN_N) + TURN_N) % TURN_N;
