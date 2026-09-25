@@ -345,14 +345,16 @@ b{font-weight:600}
 }
 
 /* -------------------------------------------------------------------- hero */
+/* La hero tiene anche la riga dei quattro fatti, sotto a tutta larghezza, e
+   finisce 32 px sopra il bordo dello schermo: i fatti sono la prima cosa da
+   sapere, non vanno cercati scorrendo. */
 .hero{
-  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);
-  gap:clamp(32px,5vw,112px);align-items:center;
-  padding-block:clamp(20px,3vh,48px) clamp(40px,5vh,72px);
-  /* la hero lascia in vista, sotto di se', la riga dei quattro fatti con
-     un po' d'aria: sono la prima cosa da sapere, non vanno cercati scorrendo */
-  min-height:min(calc(100dvh - var(--bar) - 89px),1100px);
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);grid-template-rows:1fr auto;
+  gap:clamp(40px,5vh,72px) clamp(32px,5vw,112px);align-items:center;
+  padding-block:clamp(20px,3vh,48px) 0;
+  min-height:min(calc(100dvh - var(--bar) - 22px),1200px);
 }
+.hero .facts{grid-column:1 / -1;align-self:end;width:100%}
 .hero-copy{display:flex;flex-direction:column;gap:clamp(22px,2vw,34px);align-items:flex-start}
 .hero-sub{font-size:clamp(18px,1.35vw,26px);line-height:1.45;color:var(--ink-2);max-width:25em}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
@@ -416,7 +418,7 @@ b{font-weight:600}
 
 /* i quattro fatti, subito sotto: una riga, l'icona in un tassello */
 .facts{
-  list-style:none;margin:0 auto;padding-block:28px 0;
+  list-style:none;margin:0 auto;padding:28px 0 0;
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 28px;
   border-top:1px solid var(--line);
 }
@@ -428,7 +430,11 @@ b{font-weight:600}
 .facts .i{width:19px;height:19px;stroke-width:1.8}
 
 @media (max-width:960px){
-  .hero{grid-template-columns:minmax(0,1fr);gap:32px;padding-block:24px 40px;min-height:0}
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-rows:none;gap:28px;padding-block:24px 40px;min-height:0}
+  /* stretta, i fatti vengono subito dopo i pulsanti, prima del palco */
+  .hero-copy{order:1}
+  .hero .facts{order:2;padding-block:22px 0}
+  .hero-stage{order:3}
   .hero-stage{height:clamp(380px,100vw,560px)}
   /* stretto, la carta sale in alto a sinistra: in basso coprirebbe "Drag to turn" */
   .hero-card{top:18px;bottom:auto;left:18px;transform-origin:top left}
@@ -506,9 +512,10 @@ b{font-weight:600}
 
 /* ---------------------------------------------------------------- esempi */
 .ex-show{max-width:1280px;margin:0 auto}
-/* il confronto sta intero nello schermo, e non oltre la misura vera delle
-   immagini (864 px di lato): ingrandite di piu' le linee si sgranano */
-.cmp{margin:0 auto;width:min(100%,1040px,(100dvh - var(--bar) - 200px) * 864 / 711)}
+/* il confronto sta intero nello schermo insieme alle miniature sotto (che
+   devono restare a portata di clic mentre si guarda), e non oltre la misura
+   vera delle immagini (864 px di lato): ingrandite di piu' si sgranano */
+.cmp{margin:0 auto;width:min(100%,1040px,(100dvh - var(--bar) - 290px) * 864 / 711)}
 .cmp-box{
   position:relative;aspect-ratio:864/711;
   cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none;

@@ -123,7 +123,7 @@
     function step(t) {
       var dt = Math.min(48, t - last); last = t;
       turnBy(turnSpin * dt);
-      turnSpin *= Math.pow(0.9955, dt);           // circa 5% ogni fotogramma a 60 Hz
+      turnSpin *= Math.pow(0.991, dt);            // circa 14% ogni fotogramma a 60 Hz
       turnFrame = Math.abs(turnSpin) > 0.004 ? requestAnimationFrame(step) : 0;
     }
     turnFrame = requestAnimationFrame(step);
@@ -152,7 +152,9 @@
     try { turnBox.releasePointerCapture(e.pointerId); } catch (err) {}
     var a = turnTrail[0], b = turnTrail[turnTrail.length - 1];
     if (!CALM && a && b && b[1] - a[1] > 0 && e.timeStamp - b[1] < 60) {
-      turnSpin = Math.max(-3, Math.min(3, (b[0] - a[0]) / (b[1] - a[1])));   // px per ms
+      // px per ms, smorzata: il pezzo accompagna la mano per un tratto breve
+      // (un lancio svelto vale meno di un quarto di giro), non fa la trottola
+      turnSpin = 0.7 * Math.max(-2, Math.min(2, (b[0] - a[0]) / (b[1] - a[1])));
       if (Math.abs(turnSpin) > 0.08) { turnCoast(performance.now()); }
     }
   }
