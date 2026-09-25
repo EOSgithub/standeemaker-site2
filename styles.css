@@ -18,7 +18,7 @@
   --paper:#ffffff;          /* i pannelli d'artwork: bianchi in entrambi i temi */
   --paper-ink:#2a2c30;
   --paper-soft:#8c8880;
-  --slab:#1b1e22;           /* il piano scuro: la card Commercial */
+  --slab:#1b1e22;           /* il piano scuro: la card in evidenza (Pro) */
   --slab-ink:#f2f0ea;
   --slab-soft:#9d9a92;
   --slab-rule:#32363b;
@@ -493,7 +493,7 @@ b{font-weight:600}
 }
 .plans:hover .plan::after{opacity:.9}
 .plan.dark::after{background:radial-gradient(460px circle at var(--mx,50%) var(--my,0%),rgba(230,160,82,.1),transparent 50%)}
-/* il cartiglio ambra in cima alla card Commercial: col tema scuro il fondo
+/* il cartiglio ambra in cima alla card in evidenza (Pro): col tema scuro il fondo
    della card e quello della pagina sono quasi lo stesso nero */
 .plan.dark::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:3px;background:var(--amber);border-radius:2px 2px 0 0}
 .plan.dark{background:var(--slab);color:var(--slab-ink);border-color:var(--slab-rule);box-shadow:var(--shadow-lift)}
