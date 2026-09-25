@@ -5,15 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Standee Maker: turn any picture into a printable standee</title>
 <meta name="description" content="Standee Maker traces your image, builds a 3D-printable figure and the stand that holds it next to your card. Runs offline on Windows. Free trial, no account.">
-<meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#f4f4f2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0c0d0f" media="(prefers-color-scheme: dark)">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<!-- Prima di tutto il resto: con .js le cose che entrano partono nascoste, e
-     .ready le fa entrare. Se main.js non arrivasse, dopo tre secondi la pagina
-     si mostra comunque (.late): meglio ferma che vuota. main.js, arrivato,
-     spegne il timer. -->
-<script>document.documentElement.classList.add("js");window.lateTimer=setTimeout(function(){document.documentElement.classList.add("ready","late")},3000)</script>
 <!-- L'indirizzo del sito: deploy.py lo sostituisce col dominio quando DOMAIN e' impostato. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Standee Maker: turn any picture into a printable standee">
@@ -23,14 +14,22 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#e6e3da" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<!-- Prima di tutto il resto: con .js le cose che entrano partono nascoste, e
+     main.js le fa entrare. Se main.js non arrivasse, dopo tre secondi la
+     pagina si mostra comunque (.late): meglio ferma che vuota. -->
+<script>document.documentElement.classList.add("js");window.lateTimer=setTimeout(function(){document.documentElement.classList.add("ready","late")},3000)</script>
 <!-- I font stanno in assets/fonts: nessuna richiesta a terzi all'apertura della pagina. -->
-<link rel="preload" href="assets/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/barlow-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/turn/t00.webp?v=6" as="image">
 <!-- ?v= su foglio e script: GitHub Pages li lascia in cache dieci minuti, e una
      pagina nuova con lo script vecchio si rompe. Si alza a ogni modifica di
      styles.css o main.js, come TURN_V per le viste. -->
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div class="sentinel" aria-hidden="true"></div>
@@ -41,7 +40,7 @@
     <a class="brand" href="#top">
       <svg class="mark" viewBox="0 0 30 24" aria-hidden="true">
         <rect x="1.5" y="2.5" width="21" height="19" fill="none" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M22.5 21.5 L28.5 21.5" stroke="var(--accent)" stroke-width="2.6"/>
+        <path d="M22.5 21.5 L28.5 21.5" stroke="var(--amber)" stroke-width="2.6"/>
         <path d="M6 17 L12 7 L18 17" fill="none" stroke="currentColor" stroke-width="1.6"/>
       </svg>
       <span class="name">Standee Maker</span>
@@ -60,14 +59,15 @@
 <main id="top">
 
   <!-- ================================================================ hero -->
-  <!-- A destra il palco: il pezzo che gira, e davanti la carta col disegno da
-       cui e' nato. Quando c'e' la foto vera (SITE.photos.hero, main.js) la foto
-       prende il palco e il pezzo scende al terzo stato di "How it works". -->
+  <!-- Il pezzo che gira sta qui finche' non c'e' la foto vera (SITE.photos.hero,
+       main.js): allora la foto prende questo posto e il pezzo scende al terzo
+       passo di "How it works". -->
   <section class="hero wrap">
     <div class="hero-copy">
       <h1 data-split>Turn any picture into a standee you can print</h1>
-      <p class="hero-sub" data-reveal style="--d:380ms"><span class="ph">Standee Maker traces your image,</span> <span class="ph">builds the figure</span> <span class="ph">and makes the stand</span> <span class="ph">that holds it next to your card.</span></p>
-      <div class="hero-cta" data-reveal style="--d:520ms">
+      <p class="hero-sub" data-reveal style="--d:360ms">Standee Maker traces your image, builds the figure and makes the stand
+      that holds it next to your card.</p>
+      <div class="hero-cta" data-reveal style="--d:500ms">
         <button class="btn" type="button" data-open="dlg-trial">
           <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
           Download free trial
@@ -79,172 +79,148 @@
       </div>
     </div>
 
-    <div class="hero-stage stage" id="hero-art">
+    <div class="hero-art graph" id="hero-art">
       <div class="turn-box" id="turn" tabindex="0" role="slider" aria-label="Turn the finished part"
            aria-valuemin="0" aria-valuemax="71" aria-valuenow="0">
         <img id="turn-img" src="assets/turn/t00.webp?v=6" width="1040" height="1360" draggable="false"
              alt="The finished part: the figure slotted into its stand, next to a card in its toploader">
-        <span class="turn-tag" id="turn-tag" data-reveal style="--d:1500ms">
-          <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-          Drag to turn
-        </span>
+        <span class="turn-tag" id="turn-tag" data-reveal style="--d:1400ms">Drag to turn</span>
       </div>
-      <span class="floor" aria-hidden="true"></span>
-      <figure class="hero-card paper" aria-hidden="true">
-        <img src="assets/source.webp" width="821" height="668" alt="">
-      </figure>
     </div>
-
-    <!-- i quattro fatti: dentro la hero perche' stretta la hero li mette fra
-         i pulsanti e il palco, e cosi' si vedono subito anche sul telefono -->
-      <ul class="facts">
-        <li>
-          <span class="tile-i"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></span>
-          <span>Windows 10+</span>
-        </li>
-        <li>
-          <span class="tile-i"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg></span>
-          <span>Works offline</span>
-        </li>
-        <li>
-          <span class="tile-i"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>
-          <span>Pay once, no subscription</span>
-        </li>
-        <li>
-          <span class="tile-i"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 16.5 5 5"/><path d="M2 21a8 8 0 0 1 11.531-7.18"/><path d="m21.5 16.5-5 5"/><circle cx="10" cy="8" r="5"/></svg></span>
-          <span>Free trial, no account</span>
-        </li>
-      </ul>
   </section>
 
+  <!-- ======================================================== i quattro fatti -->
+  <div class="wrap">
+    <ul class="facts">
+      <li data-reveal style="--d:700ms">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+        <span>Windows 10 and 11</span>
+      </li>
+      <li data-reveal style="--d:790ms">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg>
+        <span>Works offline</span>
+      </li>
+      <li data-reveal style="--d:880ms">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+        <span>Pay once, no subscription</span>
+      </li>
+      <li data-reveal style="--d:970ms">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m16.5 16.5 5 5"/><path d="M2 21a8 8 0 0 1 11.531-7.18"/><path d="m21.5 16.5-5 5"/><circle cx="10" cy="8" r="5"/></svg>
+        <span>Free trial, no account</span>
+      </li>
+    </ul>
+  </div>
 
-  <!-- ====================================================== i tre stati -->
-  <!-- Largo: il riquadro a sinistra resta fermo e passa da uno stato all'altro
-       mentre i passi scorrono (main.js, data-step). Stretto: ogni passo ha la
-       sua immagine (.how-inline) e il riquadro fermo non c'e'. -->
+  <!-- =========================================================== tre passi -->
   <section id="how" class="wrap sec">
     <div class="sec-head">
-      <h2 data-split>From picture to printed part. <span class="mute">Three steps, all on your own computer.</span></h2>
+      <h2 data-split>From picture to printed part</h2>
+      <p data-reveal style="--d:180ms">Three steps, all on your own computer.</p>
     </div>
-    <div class="how-grid">
-      <div class="how-visual">
-        <div class="how-frame" id="how-frame" data-step="0">
-          <div class="how-layer paper" data-k="0"><img src="assets/source.webp" width="821" height="668" loading="lazy"
-               alt="The starting picture: a colour character on a transparent background"></div>
-          <div class="how-layer paper" data-k="1"><img src="assets/trace/kelpurr.svg" loading="lazy"
-               alt="The traced picture: silhouette in grey, line art in black"></div>
-          <div class="how-layer stage" data-k="2" id="print-slot"><span class="floor" aria-hidden="true"></span><img class="still" src="assets/turn/t65.webp?v=6" width="1040" height="1360" loading="lazy"
-               alt="The finished part in its stand, seen from the side"></div>
-          <span class="how-scan" aria-hidden="true"></span>
-        </div>
-        <div class="how-track" aria-hidden="true">
-          <div class="how-bar" id="how-bar"><i></i></div>
-          <div class="how-labels" id="how-labels"><span class="on">Picture</span><span>Trace</span><span>Print</span></div>
-        </div>
-      </div>
-
-      <ol class="how-steps">
-        <li class="how-step on" data-k="0">
-          <figure class="how-inline paper"><img src="assets/source.webp" width="821" height="668" loading="lazy" alt=""></figure>
-          <h3>Add a picture</h3>
-          <p><span class="ph">A drawing, a render or a photo.</span> <span class="ph">If it has a background,</span> <span class="ph">a few clicks take it out.</span></p>
-        </li>
-        <li class="how-step" data-k="1">
-          <figure class="how-inline paper"><img src="assets/trace/kelpurr.svg" loading="lazy" alt=""></figure>
-          <h3>Trace it</h3>
-          <p><span class="ph">The outline and the line art</span> <span class="ph">come out as two SVGs</span> <span class="ph">that sit exactly on top of each other.</span></p>
-        </li>
-        <li class="how-step" data-k="2">
-          <figure class="how-inline stage"><span class="floor" aria-hidden="true"></span><img src="assets/turn/t65.webp?v=6" width="1040" height="1360" loading="lazy" alt=""></figure>
-          <h3>Print it</h3>
-          <p><span class="ph">One STL for the figure,</span> <span class="ph">base included,</span> <span class="ph">and one for the stand.</span> <span class="ph">Open them in any slicer.</span></p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ============================================================== esempi -->
-  <section id="examples" class="wrap sec band">
-    <div class="sec-head center">
-      <h2 data-split>Straight out of the tracer. <span class="mute">No&nbsp;touch-ups.</span></h2>
-      <p data-reveal style="--d:200ms"><span class="ph">Four drawings with <em>Extra Effort</em> on</span> <span class="ph">and every other setting</span> <span class="ph">left as it starts.</span></p>
-    </div>
-    <div class="ex-show" data-reveal>
-      <!-- Il confronto grande e le quattro miniature: li costruisce main.js (EX). -->
-      <figure class="cmp" id="cmp"></figure>
-      <div class="ex-picks" id="ex-picks" role="tablist" aria-label="Examples"></div>
-      <p class="ex-hint"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18-6-6 6-6"/><path d="m15 6 6 6-6 6"/></svg>Drag the line to compare the picture with its trace.</p>
-    </div>
+    <ol class="triptych">
+      <li class="trip" data-reveal style="--d:0ms">
+        <div class="trip-art graph"><img src="assets/source.webp" width="821" height="668" loading="lazy"
+             alt="The starting picture: a colour character on a transparent background"></div>
+        <h3>Add a picture</h3>
+        <p>A drawing, a render or a photo. If it has a background, a few clicks take it out.</p>
+      </li>
+      <li class="trip" data-reveal style="--d:120ms">
+        <svg class="i trip-join" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <div class="trip-art graph scan-me" id="trace-art"><img src="assets/trace/kelpurr.svg" loading="lazy"
+             alt="The traced picture: silhouette in grey, line art in black"><span class="trip-scan" aria-hidden="true"></span></div>
+        <h3>Trace it</h3>
+        <p>The outline and the line art come out as two SVGs that sit exactly on top of each other.</p>
+      </li>
+      <li class="trip" data-reveal style="--d:240ms">
+        <svg class="i trip-join" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <div class="trip-art graph" id="print-slot"><img class="still" src="assets/turn/t65.webp?v=6" width="1040" height="1360" loading="lazy"
+             alt="The finished part in its stand, seen from the side"></div>
+        <h3>Print it</h3>
+        <p>One STL for the figure, base included, and one for the stand. Open them in any slicer.</p>
+      </li>
+    </ol>
   </section>
 
   <!-- ====================================================== l'app, a riquadri -->
   <section id="app" class="wrap sec">
     <div class="sec-head">
-      <h2 data-split>Everything in one window. <span class="mute">Every change redraws while you watch.</span></h2>
-      <p data-reveal style="--d:200ms"><span class="ph">Trace, Figure and Stand</span> <span class="ph">are three pages of the same program:</span> <span class="ph">pick a subject once and follow it</span> <span class="ph">from the outline to the stand.</span></p>
+      <h2 data-split>Everything in one window</h2>
+      <p data-reveal style="--d:180ms">Trace, Figure and Stand are three pages of the same program, and every change redraws
+      the result while you watch.</p>
     </div>
 
-    <div class="app-show" data-reveal>
-      <div class="app-top">
+    <div class="bento" data-reveal>
+      <div class="cell cell-wide">
         <div class="tabs" role="tablist" aria-label="Pages of the app">
           <span class="tab-ind" aria-hidden="true"></span>
           <button class="tab" role="tab" id="p0" aria-selected="true" aria-controls="shot">Trace</button>
           <button class="tab" role="tab" id="p1" aria-selected="false" aria-controls="shot">Figure</button>
           <button class="tab" role="tab" id="p2" aria-selected="false" aria-controls="shot">Stand</button>
         </div>
+        <div class="shot" id="shot">
+          <img class="on" id="u0" src="assets/ui/trace.webp" width="1500" height="920" loading="lazy" alt="The Trace page: library on the left, picture and outline in the middle, settings on the right">
+          <img id="u1" src="assets/ui/figure.webp" width="1500" height="920" loading="lazy" alt="The Figure page: the drawing to scale on its base, with the base settings">
+          <img id="u2" src="assets/ui/stand.webp" width="1500" height="920" loading="lazy" alt="The Stand page: the stand in 3D with its two slots">
+        </div>
         <!-- La prima nota e' anche scritta qui: chi ha il JavaScript spento la legge
              lo stesso. Deve restare uguale a NOTES[0] in main.js. -->
-        <p class="note" id="unote" aria-live="polite"><b>Trace</b> puts the picture and its outline side by side, at
+        <p class="note" id="unote"><b>Trace</b> puts the picture and its outline side by side, at
         the same height. Size and line width are on the right.</p>
       </div>
-      <div class="shot" id="shot">
-        <img class="on" id="u0" src="assets/ui/trace.webp" width="1500" height="920" loading="lazy" alt="The Trace page: library on the left, picture and outline in the middle, settings on the right">
-        <img id="u1" src="assets/ui/figure.webp" width="1500" height="920" loading="lazy" alt="The Figure page: the drawing to scale on its base, with the base settings">
-        <img id="u2" src="assets/ui/stand.webp" width="1500" height="920" loading="lazy" alt="The Stand page: the stand in 3D with its two slots">
-      </div>
-    </div>
 
-    <div class="tiles" data-reveal>
-      <article class="tile">
-        <div class="tile-img"><img src="assets/ui/cutout.webp" width="1180" height="880" loading="lazy" alt="The Remove background window: the background gone, the subject on a chequerboard"></div>
+      <div class="cell">
+        <div class="cell-img"><img src="assets/ui/cutout.webp" width="1180" height="880" loading="lazy" alt="The Remove background window: the background gone, the subject on a chequerboard"></div>
         <h3>Remove background</h3>
         <p class="note">A wand, a box and two brushes. Here three clicks took the background out,
         the gaps inside the chain included.</p>
-      </article>
-      <article class="tile">
-        <div class="tile-img"><img src="assets/ui/retouch.webp" width="1180" height="880" loading="lazy" alt="The Touch up window: eraser and pencil on the traced line art"></div>
+      </div>
+
+      <div class="cell">
+        <div class="cell-img"><img src="assets/ui/retouch.webp" width="1180" height="880" loading="lazy" alt="The Touch up window: eraser and pencil on the traced line art"></div>
         <h3>Touch up</h3>
         <p class="note">An eraser and a pencil for the line art, before it becomes a solid. A stray
         line goes, a heart goes on.</p>
-      </article>
+      </div>
     </div>
+  </section>
+
+  <!-- ============================================================== esempi -->
+  <section id="examples" class="wrap sec band">
+    <div class="sec-head">
+      <h2 data-split>Straight out of the tracer</h2>
+      <p data-reveal style="--d:180ms">Four drawings with <em>Extra Effort</em> on and every other setting left as it starts.
+      No touch-ups. Drag the line to compare.</p>
+    </div>
+    <div class="grid" id="grid" data-reveal></div>
   </section>
 
   <!-- ============================================================ tutorial -->
   <section id="tutorial" class="wrap sec">
-    <div class="cinema stage" data-reveal>
-      <div class="cinema-copy">
-        <h2 data-split><span class="ph">Follow one picture</span> <span class="ph">all the way</span> <span class="ph">to the stand.</span></h2>
-        <p><span class="ph">Every step in the real program,</span> <span class="ph">on a real subject:</span> <span class="ph">the cut-out, the touch-ups,</span> <span class="ph">the figure and its stand.</span> <span class="ph">Each screen shows where to look.</span></p>
-        <button class="btn btn-ghost" type="button" data-tour="0">
-          <svg class="i i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
-          Watch the tutorial
-        </button>
-      </div>
-      <button class="tour-poster" type="button" data-tour="0" aria-label="Watch the tutorial">
+    <div class="split">
+      <button class="tour-poster" type="button" data-tour="0" aria-label="Watch the tutorial" data-reveal>
         <img src="assets/tutorial/traced.webp?v=10" width="1500" height="920" loading="lazy" alt="The Trace page with Houndivolt: the picture on the left, the finished trace on the right">
         <span class="tour-play" aria-hidden="true">
           <svg class="i" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
         </span>
       </button>
+      <div class="split-copy">
+        <h2 data-split>Follow one picture all the way to the stand</h2>
+        <p data-reveal style="--d:180ms">Every step in the real program, on a real subject: the cut-out, the touch-ups, the
+        figure and its stand. Each screen shows where to look.</p>
+        <button class="btn btn-ghost" type="button" data-tour="0">
+          <svg class="i i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+          Watch the tutorial
+        </button>
+      </div>
     </div>
   </section>
 
   <!-- =============================================================== prezzi -->
   <section id="pricing" class="wrap sec">
-    <div class="sec-head center">
-      <h2 data-split>Pay once. <span class="mute">Keep it.</span></h2>
-      <p data-reveal style="--d:200ms"><span class="ph">Both editions are the same program</span> <span class="ph">with the same features.</span> <span class="ph">The licence only decides</span> <span class="ph">what you may do with the prints.</span></p>
+    <div class="sec-head">
+      <h2 data-split>Pay once. Keep it.</h2>
+      <p data-reveal style="--d:180ms">Both editions are the same program with the same features. The licence only decides what
+      you may do with the prints.</p>
     </div>
 
     <div class="plans" data-reveal>
@@ -262,7 +238,7 @@
         <button class="btn btn-ghost btn-block" type="button" data-open="dlg-buy" data-edition="pro">Buy Pro</button>
       </div>
 
-      <div class="plan pick-me">
+      <div class="plan dark">
         <h3 class="plan-name">Commercial</h3>
         <p class="plan-for">For selling what you print</p>
         <p class="price"><span class="cur">&euro;</span><span class="fig">99.99</span><span class="once">one-time, plus tax</span></p>
@@ -348,15 +324,17 @@
 
   <!-- ============================================================ chiusura -->
   <section class="wrap sec">
-    <div class="outro stage" data-reveal>
-      <div class="outro-art"><img src="assets/turn/t06.webp?v=6" width="1040" height="1360" loading="lazy"
-           alt="The finished part in its stand, turned a little to the side"><span class="floor" aria-hidden="true"></span></div>
-      <h2 data-split>Try it on a picture of your own.</h2>
-      <p><span class="ph">The full program for 14&nbsp;days.</span> <span class="ph">No account,</span> <span class="ph">and nothing it makes is watermarked.</span></p>
-      <button class="btn" type="button" data-open="dlg-trial">
-        <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
-        Download free trial
-      </button>
+    <div class="outro" data-reveal>
+      <div class="outro-art graph"><img src="assets/turn/t06.webp?v=6" width="1040" height="1360" loading="lazy"
+           alt="The finished part in its stand, turned a little to the side"></div>
+      <div class="outro-copy">
+        <h2 data-split>Try it on a picture of your own</h2>
+        <p>The full program for 14&nbsp;days. No account, and nothing it makes is watermarked.</p>
+        <button class="btn" type="button" data-open="dlg-trial">
+          <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Download free trial
+        </button>
+      </div>
     </div>
   </section>
 
@@ -364,14 +342,6 @@
 
 <footer>
   <div class="foot-in">
-    <a class="brand" href="#top">
-      <svg class="mark" viewBox="0 0 30 24" aria-hidden="true">
-        <rect x="1.5" y="2.5" width="21" height="19" fill="none" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M22.5 21.5 L28.5 21.5" stroke="var(--accent)" stroke-width="2.6"/>
-        <path d="M6 17 L12 7 L18 17" fill="none" stroke="currentColor" stroke-width="1.6"/>
-      </svg>
-      <span class="name">Standee Maker</span>
-    </a>
     <span>&copy; 2026 Standee Maker</span>
     <nav aria-label="Documents and contact">
       <a href="legal/licence.html">Licence agreement</a>
@@ -388,7 +358,7 @@
     <div class="dlg-head">
       <div class="titles">
         <h2 id="dlg-trial-t">Free trial</h2>
-        <p class="sub">Standee Maker 1.0.0 for Windows 10+, 64-bit</p>
+        <p class="sub">Standee Maker 1.0.0 for Windows 10 and 11, 64-bit</p>
       </div>
       <button class="dlg-x" type="button" data-close aria-label="Close">
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -531,6 +501,6 @@
   </div>
 </dialog>
 
-<script src="main.js?v=11"></script>
+<script src="main.js?v=8"></script>
 </body>
 </html>

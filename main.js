@@ -123,7 +123,7 @@
     function step(t) {
       var dt = Math.min(48, t - last); last = t;
       turnBy(turnSpin * dt);
-      turnSpin *= Math.pow(0.991, dt);            // circa 14% ogni fotogramma a 60 Hz
+      turnSpin *= Math.pow(0.9955, dt);           // circa 5% ogni fotogramma a 60 Hz
       turnFrame = Math.abs(turnSpin) > 0.004 ? requestAnimationFrame(step) : 0;
     }
     turnFrame = requestAnimationFrame(step);
@@ -152,9 +152,7 @@
     try { turnBox.releasePointerCapture(e.pointerId); } catch (err) {}
     var a = turnTrail[0], b = turnTrail[turnTrail.length - 1];
     if (!CALM && a && b && b[1] - a[1] > 0 && e.timeStamp - b[1] < 60) {
-      // px per ms, smorzata: il pezzo accompagna la mano per un tratto breve
-      // (un lancio svelto vale meno di un quarto di giro), non fa la trottola
-      turnSpin = 0.7 * Math.max(-2, Math.min(2, (b[0] - a[0]) / (b[1] - a[1])));
+      turnSpin = Math.max(-3, Math.min(3, (b[0] - a[0]) / (b[1] - a[1])));   // px per ms
       if (Math.abs(turnSpin) > 0.08) { turnCoast(performance.now()); }
     }
   }
@@ -177,37 +175,17 @@
 
   // La foto vera, quando c'e', prende la hero; il pezzo che gira scende nel
   // riquadro del terzo passo, al posto della vista ferma.
-  // La carta col disegno di partenza sta davanti al pezzo: davanti alla foto
-  // no, la foto mostra gia' la carta vera.
   if (SITE.photos.hero) {
-    var slot = $("print-slot"), photo = new Image(), card = document.querySelector(".hero-card");
+    var slot = $("print-slot"), photo = new Image();
     photo.src = SITE.photos.hero;
-    photo.className = "hero-photo";
     photo.alt = "A printed standee in its stand, next to a card in its toploader";
     slot.innerHTML = "";
     slot.appendChild(turnBox);
     $("hero-art").appendChild(photo);
-    if (card) { card.remove(); }
   }
 
   // All'apertura il pezzo sta fermo: niente mezzo giro da solo (c'era, tolto
   // su richiesta). A dire che si gira bastano il cursore e "Drag to turn".
-
-  // La luce del palco va un poco verso il puntatore: si muove poco (un terzo
-  // della strada) e con calma, e la transizione la fa il CSS (@property).
-  var heroArt = $("hero-art");
-  if (!CALM && window.matchMedia && matchMedia("(hover: hover)").matches) {
-    heroArt.addEventListener("pointermove", function (e) {
-      var r = heroArt.getBoundingClientRect();
-      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      heroArt.style.setProperty("--lx", (50 + (x - 0.5) * 34).toFixed(1) + "%");
-      heroArt.style.setProperty("--ly", (30 + (y - 0.5) * 24).toFixed(1) + "%");
-    });
-    heroArt.addEventListener("pointerleave", function () {
-      heroArt.style.removeProperty("--lx");
-      heroArt.style.removeProperty("--ly");
-    });
-  }
 
   /* --------------------------------------------------------- schermate */
   // La prima e' anche scritta nella pagina: chi arriva col JavaScript spento
@@ -226,7 +204,9 @@
     var b = tabs[pageAt];
     if (!b || !tabInd) return;
     tabInd.style.setProperty("--x", b.offsetLeft + "px");
+    tabInd.style.setProperty("--y", b.offsetTop + "px");
     tabInd.style.setProperty("--w", b.offsetWidth + "px");
+    tabInd.style.setProperty("--h", b.offsetHeight + "px");
   }
   function showPage(i) {
     var first = pageAt < 0;
@@ -255,165 +235,111 @@
 
   /* ------------------------------------------------------------ esempi */
   // Solo i soggetti di samples/, di cui abbiamo il permesso (samples/CREDITS.txt):
-  // le immagini le rifa' make_examples.py. Un confronto solo, grande, perche' la
-  // qualita' delle linee si vede solo cosi'; le miniature scelgono il soggetto.
+  // le immagini le rifa' make_examples.py.
   var EX = [
     ["kelpurr", "Kelpurr"], ["cervinox", "Cervinox"],
     ["houndivolt", "Houndivolt"], ["anchorjaw", "Anchorjaw"]
   ];
-  var cmp = $("cmp"), exPicks = $("ex-picks");
-  cmp.innerHTML =
-    '<div class="cmp-box paper">' +
-      '<img class="a" alt="">' +
-      '<img class="b" alt="">' +
-      '<span class="cmp-side l" aria-hidden="true">Trace</span>' +
-      '<span class="cmp-side r" aria-hidden="true">Picture</span>' +
-      '<div class="cmp-bar"><span class="cmp-grip" tabindex="0" role="slider" ' +
-        'aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">' +
-        '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18-6-6 6-6"/><path d="m15 6 6 6-6 6"/></svg>' +
-      '</span></div>' +
-    '</div>';
-  var box = cmp.querySelector(".cmp-box"), grip = cmp.querySelector(".cmp-grip");
-  var imA = cmp.querySelector("img.a"), imB = cmp.querySelector("img.b");
-  var cmpAt = 50, cmpDown = false, exAt = -1;
+  var grid = $("grid");
 
-  function cmpSet(p) {
-    cmpAt = Math.max(0, Math.min(100, p));
-    box.style.setProperty("--p", cmpAt + "%");
-    box.style.setProperty("--r", (100 - cmpAt) + "%");
-    grip.setAttribute("aria-valuenow", Math.round(cmpAt));
-    // l'etichetta di un lato sparisce quando la linea le passa sopra
-    box.classList.toggle("edge-l", cmpAt < 16);
-    box.classList.toggle("edge-r", cmpAt > 84);
-  }
-  function cmpFrom(e) {
-    var r = box.getBoundingClientRect();
-    cmpSet((e.clientX - r.left) / r.width * 100);
-  }
-  box.addEventListener("pointerdown", function (e) {
-    cmpStop();
-    cmpDown = true; box.classList.add("dragging");
-    box.setPointerCapture(e.pointerId); cmpFrom(e); e.preventDefault();
-  });
-  box.addEventListener("pointermove", function (e) { if (cmpDown) { cmpFrom(e); e.preventDefault(); } });
-  function cmpUp(e) {
-    if (!cmpDown) return;
-    cmpDown = false;
-    box.classList.remove("dragging");
-    try { box.releasePointerCapture(e.pointerId); } catch (err) {}
-  }
-  box.addEventListener("pointerup", cmpUp);
-  box.addEventListener("pointercancel", cmpUp);
-  grip.addEventListener("keydown", function (e) {
-    var d = e.key === "ArrowRight" ? 4 : e.key === "ArrowLeft" ? -4 : 0;
-    if (!d) return;
-    e.preventDefault();
-    cmpStop();
-    cmpSet(cmpAt + d);
-  });
+  function compare(slug, name) {
+    var fig = document.createElement("figure");
+    fig.className = "cmp";
+    fig.innerHTML =
+      '<div class="cmp-box">' +
+        '<img loading="lazy" src="assets/ex/' + slug + '_a.webp" alt="' + name + ', the starting image">' +
+        '<img loading="lazy" class="b" src="assets/ex/' + slug + '_b.webp" alt="' + name + ' traced: silhouette in grey, line art in black">' +
+        '<div class="cmp-bar"><span class="cmp-grip" tabindex="0" role="slider" ' +
+          'aria-label="How much of the ' + name + ' trace to uncover" ' +
+          'aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">' +
+          '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18-6-6 6-6"/><path d="m15 6 6 6-6 6"/></svg>' +
+        '</span></div>' +
+      '</div><figcaption>' + name + '</figcaption>';
 
-  // Il cambio di soggetto passa per una dissolvenza breve: le due immagini
-  // nuove si mostrano solo quando sono tutte e due decodificate, insieme.
-  function showEx(k) {
-    if (k === exAt) return;
-    exAt = k;
-    var slug = EX[k][0], name = EX[k][1];
-    Array.prototype.forEach.call(exPicks.children, function (b, j) {
-      b.setAttribute("aria-selected", j === k ? "true" : "false");
-      b.tabIndex = j === k ? 0 : -1;
-    });
-    grip.setAttribute("aria-label", "How much of the " + name + " trace to uncover");
-    var a = new Image(), b = new Image();
-    a.src = "assets/ex/" + slug + "_a.webp";
-    b.src = "assets/ex/" + slug + "_b.webp";
-    var both = [a, b].map(function (im) {
-      return im.decode ? im.decode().catch(function () {}) : Promise.resolve();
-    });
-    box.classList.add("swap");
-    Promise.all(both).then(function () {
-      if (exAt !== k) return;
-      imA.src = a.src; imA.alt = name + ", the starting image";
-      imB.src = b.src; imB.alt = name + " traced: silhouette in grey, line art in black";
-      box.classList.remove("swap");
-    });
-  }
+    var box = fig.querySelector(".cmp-box"), grip = fig.querySelector(".cmp-grip");
+    var at = 50, down = false;
 
-  EX.forEach(function (e, k) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "ex-pick";
-    b.setAttribute("role", "tab");
-    b.innerHTML = '<span class="thumb paper"><img loading="lazy" alt="" src="assets/ex/' + e[0] +
-      '_a.webp"></span><span class="n">' + e[1] + "</span>";
-    b.addEventListener("click", function () { showEx(k); });
-    b.addEventListener("keydown", function (ev) {
-      var d = ev.key === "ArrowRight" ? 1 : ev.key === "ArrowLeft" ? -1 : 0;
+    function set(p) {
+      at = Math.max(0, Math.min(100, p));
+      box.style.setProperty("--p", at + "%");
+      box.style.setProperty("--r", (100 - at) + "%");
+      grip.setAttribute("aria-valuenow", Math.round(at));
+    }
+    function from(e) {
+      var r = box.getBoundingClientRect();
+      set((e.clientX - r.left) / r.width * 100);
+    }
+    box.addEventListener("pointerdown", function (e) {
+      stop();
+      down = true; box.classList.add("dragging");
+      box.setPointerCapture(e.pointerId); from(e); e.preventDefault();
+    });
+    box.addEventListener("pointermove", function (e) { if (down) { from(e); e.preventDefault(); } });
+    function up(e) {
+      if (!down) return;
+      down = false;
+      box.classList.remove("dragging");
+      try { box.releasePointerCapture(e.pointerId); } catch (err) {}
+    }
+    box.addEventListener("pointerup", up);
+    box.addEventListener("pointercancel", up);
+    grip.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 4 : e.key === "ArrowLeft" ? -4 : 0;
       if (!d) return;
-      ev.preventDefault();
-      var n = (k + d + EX.length) % EX.length;
-      exPicks.children[n].focus(); showEx(n);
+      e.preventDefault();
+      stop();
+      set(at + d);
     });
-    exPicks.appendChild(b);
-  });
-  cmpSet(50);
-  showEx(0);
+    set(50);
 
-  // La prima volta che il confronto e' in vista la linea fa da sola un giro
-  // breve, avanti e indietro, per dire che si trascina. Una volta sola, e si
-  // ferma appena la mano la tocca.
-  var cmpFrame = 0;
-  function cmpStop() { cancelAnimationFrame(cmpFrame); cmpFrame = 0; }
-  function cmpDemo() {
-    var keys = [[0, 50], [700, 74], [1500, 30], [2200, 50]], t0 = 0;
-    var ease = function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
-    function step(t) {
-      if (!t0) t0 = t;
-      var e = t - t0, i = 1;
-      while (i < keys.length - 1 && e > keys[i][0]) i++;
-      var a = keys[i - 1], b = keys[i], f = Math.min(1, (e - a[0]) / (b[0] - a[0]));
-      cmpSet(a[1] + (b[1] - a[1]) * ease(f));
-      cmpFrame = e < keys[keys.length - 1][0] ? requestAnimationFrame(step) : 0;
-    }
-    cmpFrame = requestAnimationFrame(step);
+    // la dimostrazione: la linea va avanti e indietro una volta da sola, per
+    // dire che si trascina; si ferma appena la mano la tocca
+    var frame = 0;
+    function stop() { cancelAnimationFrame(frame); frame = 0; }
+    fig.demo = function () {
+      var keys = [[0, 50], [650, 76], [1400, 28], [2050, 50]], t0 = 0;
+      var ease = function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+      function step(t) {
+        if (!t0) t0 = t;
+        var el = t - t0, i = 1;
+        while (i < keys.length - 1 && el > keys[i][0]) i++;
+        var a = keys[i - 1], b = keys[i], f = Math.min(1, (el - a[0]) / (b[0] - a[0]));
+        set(a[1] + (b[1] - a[1]) * ease(f));
+        frame = el < keys[keys.length - 1][0] ? requestAnimationFrame(step) : 0;
+      }
+      frame = requestAnimationFrame(step);
+    };
+    return fig;
   }
+
+  // Quattro, una riga sola: tutti in vista, niente da aprire.
+  EX.forEach(function (e) { grid.appendChild(compare(e[0], e[1])); });
+
+  // La prima volta che i quattro confronti sono in vista fanno la loro
+  // dimostrazione, uno dopo l'altro come un'onda.
   if (!CALM && "IntersectionObserver" in window) {
-    var cmpSeen = new IntersectionObserver(function (list) {
+    var gridSeen = new IntersectionObserver(function (list) {
       if (!list[0].isIntersecting) return;
-      cmpSeen.disconnect();
-      setTimeout(cmpDemo, 500);
-    }, { threshold: 0.6 });
-    cmpSeen.observe(box);
+      gridSeen.disconnect();
+      Array.prototype.forEach.call(grid.children, function (fig, i) {
+        setTimeout(fig.demo, 600 + i * 140);
+      });
+    }, { threshold: 0.5 });
+    gridSeen.observe(grid);
   }
 
-  /* ------------------------------------- come funziona: i tre stati */
-  // Il passo che sta a meta' schermo decide lo stato del riquadro fermo. Solo
-  // su schermo largo: stretto il riquadro non c'e' e ogni passo ha la sua immagine.
-  var howFrame = $("how-frame"), howBar = $("how-bar"), howLabels = $("how-labels");
-  var howSteps = document.querySelectorAll(".how-step"), howAt = 0;
-  function howShow(k) {
-    // dal disegno al tracciato passa lo scanner: la riga attraversa il foglio
-    // insieme al taglio che scopre il tracciato
-    if (k === 1 && howAt === 0 && !CALM) {
-      howFrame.classList.remove("scanning");
-      void howFrame.offsetWidth;                  // per far ripartire l'animazione
-      howFrame.classList.add("scanning");
-    }
-    howAt = k;
-    howFrame.setAttribute("data-step", k);
-    Array.prototype.forEach.call(howSteps, function (li, j) { li.classList.toggle("on", j === k); });
-    Array.prototype.forEach.call(howLabels.children, function (t, j) { t.classList.toggle("on", j <= k); });
-    // il filo: dove il CSS lo lega allo scorrimento questo valore non conta
-    howBar.style.setProperty("--f", [0.12, 0.55, 1][k]);
-  }
-  if ("IntersectionObserver" in window) {
-    var howSeen = new IntersectionObserver(function (list) {
-      list.forEach(function (e) {
-        if (e.isIntersecting) { howShow(parseInt(e.target.getAttribute("data-k"), 10)); }
-      });
-    }, { rootMargin: "-45% 0px -45% 0px" });
-    Array.prototype.forEach.call(howSteps, function (li) { howSeen.observe(li); });
-  } else {
-    Array.prototype.forEach.call(howSteps, function (li) { li.classList.add("on"); });
+  // Il tracciato del secondo passo arriva con una passata di scanner, la
+  // prima volta che e' in vista.
+  var traceArt = $("trace-art");
+  if (traceArt && !CALM && "IntersectionObserver" in window) {
+    var scanSeen = new IntersectionObserver(function (list) {
+      if (!list[0].isIntersecting) return;
+      scanSeen.disconnect();
+      traceArt.classList.add("scan");
+    }, { threshold: 0.6 });
+    scanSeen.observe(traceArt);
+  } else if (traceArt) {
+    traceArt.classList.remove("scan-me");
   }
 
   /* ------------------------------------------------------------ modali */
@@ -987,9 +913,8 @@
 
   /* ------------------------------------------------ le cose che entrano */
   // I titoli con data-split entrano parola per parola: ogni parola va nel suo
-  // <span class="w">, con il suo numero d'ordine per il ritardo. Gli elementi
-  // dentro il titolo (la seconda frase in grigio) restano dove sono, e le loro
-  // parole continuano la numerazione. Lo screen reader legge il testo intero.
+  // <span class="w">, con il suo numero d'ordine per il ritardo. Lo screen
+  // reader legge il testo intero.
   function split(el) {
     var n = 0;
     (function walk(node) {
@@ -1012,8 +937,8 @@
   }
   document.querySelectorAll("[data-split]").forEach(split);
 
-  // La hero entra subito (quando i caratteri sono pronti, per non far
-  // entrare una parola nel font di ripiego); il resto quando arriva in vista.
+  // La hero entra subito (quando i caratteri sono pronti, per non far entrare
+  // una parola nel font di ripiego); il resto quando arriva in vista.
   var hero = document.querySelector(".hero");
   function heroIn() {
     // arrivati qui lo script ha girato tutto: la rete in testa alla pagina
@@ -1024,8 +949,7 @@
   }
   var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
   Promise.race([fontsReady, new Promise(function (ok) { setTimeout(ok, 700); })]).then(function () {
-    // un giro di pausa perche' il browser disegni lo stato di partenza: senza,
-    // le transizioni partirebbero gia' arrivate
+    // un giro di pausa perche' il browser disegni lo stato di partenza
     setTimeout(heroIn, 30);
   });
 
@@ -1043,8 +967,8 @@
   }
 
   /* --------------------------------------------- la barra e le sezioni */
-  // Appena la pagina scorre la barra diventa una pillola di vetro; il segno
-  // sotto le voci sta sulla sezione che occupa il centro dello schermo.
+  // Appena la pagina scorre la barra diventa vetro; il segno ambra sta sotto
+  // la voce della sezione che occupa il centro dello schermo.
   var nav = document.querySelector(".topnav"), navInd = document.querySelector(".nav-ind");
   var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
   if ("IntersectionObserver" in window) {
@@ -1053,7 +977,7 @@
     }).observe(document.querySelector(".sentinel"));
 
     var live = {};
-    function mark() {
+    var mark = function () {
       var cur = null;
       navLinks.forEach(function (a) {
         var on = !!live[a.getAttribute("href").slice(1)] && !cur;
@@ -1066,7 +990,7 @@
         navInd.style.setProperty("--x", cur.offsetLeft + "px");
         navInd.style.setProperty("--w", cur.offsetWidth + "px");
       }
-    }
+    };
     var spy = new IntersectionObserver(function (list) {
       list.forEach(function (e) { live[e.target.id] = e.isIntersecting; });
       mark();
@@ -1077,8 +1001,8 @@
     });
   }
 
-  // Sui prezzi la luce segue il puntatore: sul fondo e sul bordo delle due
-  // card insieme, ognuna misurata sulla propria posizione.
+  // Sui prezzi un velo ambra segue il puntatore sulle due card insieme,
+  // ognuna misurata sulla propria posizione.
   var plans = document.querySelector(".plans");
   if (plans && !CALM && window.matchMedia && matchMedia("(hover: hover)").matches) {
     var cards = plans.querySelectorAll(".plan");
