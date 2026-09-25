@@ -681,6 +681,15 @@ dialog[open]::backdrop{background:rgba(17,18,20,.55)}
   padding:11px 14px;font-size:14.5px;color:var(--ink-soft);
 }
 .callout b{color:var(--ink);font-weight:500}
+
+/* l'avviso di SmartScreen nella finestra della prova: una riga quieta, non
+   un allarme, subito prima del pulsante */
+.winnote{
+  display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;
+  padding-top:14px;border-top:1px solid var(--rule-soft);
+}
+.winnote .i{width:18px;height:18px;margin-top:2px;color:var(--ink-soft)}
+.dlg-body .winnote p{font-size:14.5px;color:var(--ink-soft)}
 .hint{font-size:13.5px;color:var(--ink-soft);text-align:center}
 
 /* -------------------------------------------------------- tutorial: modale */

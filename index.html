@@ -29,7 +29,7 @@
 <!-- ?v= su foglio e script: GitHub Pages li lascia in cache dieci minuti, e una
      pagina nuova con lo script vecchio si rompe. Si alza a ogni modifica di
      styles.css o main.js, come TURN_V per le viste. -->
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 <div class="sentinel" aria-hidden="true"></div>
@@ -314,6 +314,12 @@
           are up to you.</div>
         </details>
         <details>
+          <summary>Windows says it protected my PC. What now?</summary>
+          <div class="answer">That is SmartScreen. Windows shows it for downloads it has not
+          seen many times yet, and every new release of a small program starts there. Choose
+          <b>More info</b>, then <b>Run anyway</b>. Download the setup only from this page.</div>
+        </details>
+        <details>
           <summary>What if it turns out not to be for me?</summary>
           <div class="answer">That is what the trial is for: try it before you pay. After a purchase
           the <a href="legal/terms.html">Terms of sale</a> apply.</div>
@@ -381,6 +387,16 @@
       settings and your licence.</p>
       <div class="callout" id="trial-state">
         <b>The file is not published yet.</b> The link will appear here at release.
+      </div>
+      <!-- SmartScreen: Windows lo mostra per i download che ha visto poche volte,
+           e ogni versione nuova di un programma piccolo ricomincia da li'.
+           Detto qui, prima del clic, spaventa meno di quando compare. Il nome
+           dell'editore non si scrive: Windows lo mostra solo se il setup e'
+           firmato. La stessa cosa sta nelle FAQ. -->
+      <div class="winnote">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <p><b>Windows may warn you.</b> New downloads can show &ldquo;Windows protected
+        your PC&rdquo;. Choose <b>More info</b>, then <b>Run anyway</b>.</p>
       </div>
     </div>
 
