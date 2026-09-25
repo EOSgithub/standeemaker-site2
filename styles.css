@@ -325,6 +325,12 @@ b{font-weight:600}
 @keyframes tag-l{0%,60%,100%{transform:none}30%{transform:translateX(-5px)}}
 @keyframes tag-r{0%,60%,100%{transform:none}30%{transform:translateX(5px)}}
 .turn-tag.gone{opacity:0}
+/* L'etichetta entra con una dissolvenza sua e non con data-reveal: finendo,
+   quella azzerava il transform, e con lui il translateX(-50%) che la
+   centra, lasciandola spostata a destra di mezza larghezza. */
+.js .turn-tag{opacity:0;transition:opacity .9s var(--out) 1.4s}
+.js.ready .turn-tag:not(.gone){opacity:1}
+.js .turn-tag.gone{transition-delay:0s}
 /* entrata della hero: il foglio si posa, poi il pezzo sale al suo posto */
 .js .hero-art{opacity:0;transform:translateY(16px);transition:opacity 1s var(--out) .15s,transform 1.3s var(--out) .15s}
 .js .hero-art .turn-box{opacity:0;transform:translateY(26px);transition:opacity 1.1s var(--out) .45s,transform 1.5s var(--out) .45s}
@@ -840,4 +846,5 @@ dialog.tour{
   *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important;animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important}
   .js [data-reveal],.js [data-split] .w,.js .hero-art,.js .hero-art .turn-box{opacity:1;transform:none;filter:none}
   .js .trip-art.scan-me img{clip-path:none}
+  .js .turn-tag:not(.gone){opacity:1}
 }
