@@ -292,13 +292,17 @@ b{font-weight:600}
 /* Una barra sospesa: in cima alla pagina e' solo testo sul fondo, appena si
    scorre (html.scrolled, main.js) diventa una pillola di vetro. Il segno
    sotto la voce della sezione in vista scivola da una voce all'altra. */
+/* La pillola e' larga quanto la pagina piu' il suo bordo e il suo margine
+   interno (19 px per lato): cosi' il marchio sta a filo del bordo sinistro
+   dei titoli e il pulsante a filo del bordo destro del palco. Piu' stretta e centrata, sugli schermi larghi il marchio
+   partiva a meta' strada e sembrava fuori posto. */
 .topbar{
-  position:sticky;top:0;z-index:20;padding:10px var(--gutter) 0;
+  position:sticky;top:0;z-index:20;padding:10px max(0px,var(--gutter) - 19px) 0;
   pointer-events:none;
 }
 .topbar-in{
   pointer-events:auto;position:relative;
-  max-width:min(1180px,100%);margin:0 auto;min-height:56px;padding:0 10px 0 18px;
+  max-width:calc(var(--measure) + 38px);margin:0 auto;min-height:56px;padding:0 18px;
   display:flex;align-items:center;gap:16px;
   border:1px solid transparent;border-radius:999px;
   transition:background .5s var(--out),border-color .5s var(--out),box-shadow .5s var(--out),max-width .6s var(--out);
@@ -335,7 +339,7 @@ b{font-weight:600}
   .topbar .btn{margin-left:auto}
 }
 @media (max-width:420px){
-  .topbar-in{padding:0 6px 0 14px}
+  .topbar-in{padding:0 14px}
   .brand .name{font-size:17.5px}
   .topbar .btn-s{font-size:14px;padding:8px 14px}
 }
