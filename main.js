@@ -191,9 +191,11 @@
   // La prima e' anche scritta nella pagina: chi arriva col JavaScript spento
   // deve leggerla lo stesso. Le due devono restare uguali.
   var NOTES = [
-    "<b>Trace</b> puts the picture and its outline side by side, at the same height. Size and line width are on the right.",
-    "<b>Figure</b> turns the outline into a solid on a base that slides into the stand. The drawing at the top right shows how much of the figure stands above the card: 57 mm here.",
-    "<b>Stand</b> makes the block. Pick the figure and the width of the card slot: width, depth and height follow from the two."
+    // in pezzi di frase (.ph), come i sottotitoli: si va a capo fra un pezzo
+    // e l'altro, mai a meta' ("side by / side")
+    '<span class="ph"><b>Trace</b> puts the picture and its outline</span> <span class="ph">side by side, at the same height.</span> <span class="ph">Size and line width are on the right.</span>',
+    '<span class="ph"><b>Figure</b> turns the outline into a solid</span> <span class="ph">on a base that slides into the stand.</span> <span class="ph">The drawing at the top right shows</span> <span class="ph">how much of the figure</span> <span class="ph">stands above the card: 57 mm here.</span>',
+    '<span class="ph"><b>Stand</b> makes the block.</span> <span class="ph">Pick the figure</span> <span class="ph">and the width of the card slot:</span> <span class="ph">width, depth and height</span> <span class="ph">follow from the two.</span>'
   ];
   var unote = $("unote");
   var tabs = [0, 1, 2].map(function (i) { return $("p" + i); });

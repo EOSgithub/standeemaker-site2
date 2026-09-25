@@ -29,7 +29,7 @@
 <!-- ?v= su foglio e script: GitHub Pages li lascia in cache dieci minuti, e una
      pagina nuova con lo script vecchio si rompe. Si alza a ogni modifica di
      styles.css o main.js, come TURN_V per le viste. -->
-<link rel="stylesheet" href="styles.css?v=9">
+<link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body>
 <div class="sentinel" aria-hidden="true"></div>
@@ -64,9 +64,8 @@
        passo di "How it works". -->
   <section class="hero wrap">
     <div class="hero-copy">
-      <h1 data-split>Turn any picture into a standee you can print</h1>
-      <p class="hero-sub" data-reveal style="--d:360ms">Standee Maker traces your image, builds the figure and makes the stand
-      that holds it next to your card.</p>
+      <h1 data-split><span class="ph">Turn any picture</span> <span class="ph">into a standee</span> <span class="ph">you can print</span></h1>
+      <p class="hero-sub" data-reveal style="--d:360ms"><span class="ph">Standee Maker traces your image,</span> <span class="ph">builds the figure</span> <span class="ph">and makes the stand</span> <span class="ph">that holds it next to your card.</span></p>
       <div class="hero-cta" data-reveal style="--d:500ms">
         <button class="btn" type="button" data-open="dlg-trial">
           <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
@@ -122,21 +121,21 @@
         <div class="trip-art graph"><img src="assets/source.webp" width="821" height="668" loading="lazy"
              alt="The starting picture: a colour character on a transparent background"></div>
         <h3>Add a picture</h3>
-        <p>A drawing, a render or a photo. If it has a background, a few clicks take it out.</p>
+        <p><span class="ph">A drawing, a render or a photo.</span> <span class="ph">If it has a background,</span> <span class="ph">a few clicks take it out.</span></p>
       </li>
       <li class="trip" data-reveal style="--d:120ms">
         <svg class="i trip-join" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         <div class="trip-art graph scan-me" id="trace-art"><img src="assets/trace/kelpurr.svg" loading="lazy"
              alt="The traced picture: silhouette in grey, line art in black"><span class="trip-scan" aria-hidden="true"></span></div>
         <h3>Trace it</h3>
-        <p>The outline and the line art come out as two SVGs that sit exactly on top of each other.</p>
+        <p><span class="ph">The outline and the line art</span> <span class="ph">come out as two SVGs</span> <span class="ph">that sit exactly on top of each other.</span></p>
       </li>
       <li class="trip" data-reveal style="--d:240ms">
         <svg class="i trip-join" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         <div class="trip-art graph" id="print-slot"><img class="still" src="assets/turn/t65.webp?v=6" width="1040" height="1360" loading="lazy"
              alt="The finished part in its stand, seen from the side"></div>
         <h3>Print it</h3>
-        <p>One STL for the figure, base included, and one for the stand. Open them in any slicer.</p>
+        <p><span class="ph">One STL for the figure,</span> <span class="ph">base included,</span> <span class="ph">and one for the stand.</span> <span class="ph">Open them in any slicer.</span></p>
       </li>
     </ol>
   </section>
@@ -145,8 +144,7 @@
   <section id="app" class="wrap sec">
     <div class="sec-head">
       <h2 data-split>Everything in one window</h2>
-      <p data-reveal style="--d:180ms">Trace, Figure and Stand are three pages of the same program, and every change redraws
-      the result while you watch.</p>
+      <p data-reveal style="--d:180ms"><span class="ph">Trace, Figure and Stand</span> <span class="ph">are three pages of the same program,</span> <span class="ph">and every change redraws the result</span> <span class="ph">while you watch.</span></p>
     </div>
 
     <div class="bento" data-reveal>
@@ -164,22 +162,19 @@
         </div>
         <!-- La prima nota e' anche scritta qui: chi ha il JavaScript spento la legge
              lo stesso. Deve restare uguale a NOTES[0] in main.js. -->
-        <p class="note" id="unote"><b>Trace</b> puts the picture and its outline side by side, at
-        the same height. Size and line width are on the right.</p>
+        <p class="note" id="unote"><span class="ph"><b>Trace</b> puts the picture and its outline</span> <span class="ph">side by side, at the same height.</span> <span class="ph">Size and line width are on the right.</span></p>
       </div>
 
       <div class="cell">
         <div class="cell-img"><img src="assets/ui/cutout.webp" width="1180" height="880" loading="lazy" alt="The Remove background window: the background gone, the subject on a chequerboard"></div>
         <h3>Remove background</h3>
-        <p class="note">A wand, a box and two brushes. Here three clicks took the background out,
-        the gaps inside the chain included.</p>
+        <p class="note"><span class="ph">A wand, a box and two brushes.</span> <span class="ph">Here three clicks took the background out,</span> <span class="ph">the gaps inside the chain included.</span></p>
       </div>
 
       <div class="cell">
         <div class="cell-img"><img src="assets/ui/retouch.webp" width="1180" height="880" loading="lazy" alt="The Touch up window: eraser and pencil on the traced line art"></div>
         <h3>Touch up</h3>
-        <p class="note">An eraser and a pencil for the line art, before it becomes a solid. A stray
-        line goes, a heart goes on.</p>
+        <p class="note"><span class="ph">An eraser and a pencil for the line art,</span> <span class="ph">before it becomes a solid.</span> <span class="ph">A stray line goes,</span> <span class="ph">a heart goes on.</span></p>
       </div>
     </div>
   </section>
@@ -188,8 +183,7 @@
   <section id="examples" class="wrap sec band">
     <div class="sec-head">
       <h2 data-split>Straight out of the tracer</h2>
-      <p data-reveal style="--d:180ms">Four drawings with <em>Extra Effort</em> on and every other setting left as it starts.
-      No touch-ups. Drag the line to compare.</p>
+      <p data-reveal style="--d:180ms"><span class="ph">Four drawings with <em>Extra Effort</em> on</span> <span class="ph">and every other setting</span> <span class="ph">left as it starts.</span> <span class="ph">No touch-ups.</span> <span class="ph">Drag the line to compare.</span></p>
     </div>
     <div class="grid" id="grid" data-reveal></div>
   </section>
@@ -204,9 +198,8 @@
         </span>
       </button>
       <div class="split-copy">
-        <h2 data-split>Follow one picture all the way to the stand</h2>
-        <p data-reveal style="--d:180ms">Every step in the real program, on a real subject: the cut-out, the touch-ups, the
-        figure and its stand. Each screen shows where to look.</p>
+        <h2 data-split><span class="ph">Follow one picture</span> <span class="ph">all the way</span> <span class="ph">to the stand</span></h2>
+        <p data-reveal style="--d:180ms"><span class="ph">Every step in the real program,</span> <span class="ph">on a real subject:</span> <span class="ph">the cut-out, the touch-ups,</span> <span class="ph">the figure and its stand.</span> <span class="ph">Each screen shows where to look.</span></p>
         <button class="btn btn-ghost" type="button" data-tour="0">
           <svg class="i i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
           Watch the tutorial
@@ -219,8 +212,7 @@
   <section id="pricing" class="wrap sec">
     <div class="sec-head">
       <h2 data-split>Pay once. Keep it.</h2>
-      <p data-reveal style="--d:180ms">Both editions are the same program with the same features. The licence only decides what
-      you may do with the prints.</p>
+      <p data-reveal style="--d:180ms"><span class="ph">Both editions are the same program</span> <span class="ph">with the same features.</span> <span class="ph">The licence only decides</span> <span class="ph">what you may do with the prints.</span></p>
     </div>
 
     <div class="plans" data-reveal>
@@ -254,8 +246,7 @@
     </div>
 
     <div class="trialbar" data-reveal>
-      <p><b>Not sure yet?</b> The trial is the full program with no watermark: 14&nbsp;days, one new
-      subject a week.</p>
+      <p><span class="ph"><b>Not sure yet?</b></span> <span class="ph">The trial is the full program</span> <span class="ph">with no watermark:</span> <span class="ph">14&nbsp;days, one new subject a week.</span></p>
       <button class="btn" type="button" data-open="dlg-trial">
         <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
         Download free trial
@@ -268,8 +259,7 @@
     <div class="faq-wrap">
       <div class="faq-side">
         <h2 data-split>Questions</h2>
-        <p>Something not covered here? Write to
-        <a href="mailto:standeemaker.support@gmail.com">standeemaker.support@gmail.com</a>.</p>
+        <p><span class="ph">Something not covered here?</span> <span class="ph">Write to <a href="mailto:standeemaker.support@gmail.com">standeemaker.support@gmail.com</a>.</span></p>
       </div>
       <div class="faq" data-reveal>
         <details>
@@ -339,7 +329,7 @@
            alt="The finished part in its stand, turned a little to the side"></div>
       <div class="outro-copy">
         <h2 data-split>Try it on a picture of your own</h2>
-        <p>The full program for 14&nbsp;days. No account, and nothing it makes is watermarked.</p>
+        <p><span class="ph">The full program for 14&nbsp;days.</span> <span class="ph">No account,</span> <span class="ph">and nothing it makes is watermarked.</span></p>
         <button class="btn" type="button" data-open="dlg-trial">
           <svg class="i i-down" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
           Download free trial
@@ -511,6 +501,6 @@
   </div>
 </dialog>
 
-<script src="main.js?v=10"></script>
+<script src="main.js?v=11"></script>
 </body>
 </html>
