@@ -40,6 +40,10 @@
   };
 
   var $ = function (id) { return document.getElementById(id); };
+  var root = document.documentElement;
+  // Chi chiede meno movimento non vede ne' inerzia, ne' dimostrazioni, ne'
+  // entrate: il CSS spegne le transizioni, qui si spengono i giri in JS.
+  var CALM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ------------------------------------------- il pezzo: girarlo a mano */
   // Settantadue viste del pezzo, una ogni 5 gradi, col fondo trasparente (la
@@ -108,10 +112,28 @@
     turnTag.classList.add("gone");
   }
   function turnBy(px) { turnTo(turnPos - px / TURN_PX); }
+
+  // Lasciato andare, il pezzo prosegue un poco con la velocita' della mano e
+  // si ferma da solo, come un piatto girevole. La velocita' e' quella degli
+  // ultimi 80 ms di trascinamento, non dell'ultimo evento: un ultimo evento
+  // lento dopo un gesto svelto la azzererebbe.
+  var turnTrail = [], turnSpin = 0, turnFrame = 0;
+  function turnCoast(t0) {
+    var last = t0;
+    function step(t) {
+      var dt = Math.min(48, t - last); last = t;
+      turnBy(turnSpin * dt);
+      turnSpin *= Math.pow(0.9955, dt);           // circa 5% ogni fotogramma a 60 Hz
+      turnFrame = Math.abs(turnSpin) > 0.004 ? requestAnimationFrame(step) : 0;
+    }
+    turnFrame = requestAnimationFrame(step);
+  }
   turnBox.addEventListener("pointerenter", turnLoad);
   turnBox.addEventListener("pointerdown", function (e) {
     turnLoad();
+    cancelAnimationFrame(turnFrame); turnSpin = 0;
     turnDrag = e.clientX;
+    turnTrail = [[e.clientX, e.timeStamp]];
     turnBox.setPointerCapture(e.pointerId);
     turnBox.classList.add("grabbing");
     e.preventDefault();
@@ -120,12 +142,19 @@
     if (turnDrag === null) return;
     turnBy(e.clientX - turnDrag);
     turnDrag = e.clientX;
+    turnTrail.push([e.clientX, e.timeStamp]);
+    while (turnTrail.length > 2 && e.timeStamp - turnTrail[0][1] > 80) { turnTrail.shift(); }
   });
   function turnUp(e) {
     if (turnDrag === null) return;
     turnDrag = null;
     turnBox.classList.remove("grabbing");
     try { turnBox.releasePointerCapture(e.pointerId); } catch (err) {}
+    var a = turnTrail[0], b = turnTrail[turnTrail.length - 1];
+    if (!CALM && a && b && b[1] - a[1] > 0 && e.timeStamp - b[1] < 60) {
+      turnSpin = Math.max(-3, Math.min(3, (b[0] - a[0]) / (b[1] - a[1])));   // px per ms
+      if (Math.abs(turnSpin) > 0.08) { turnCoast(performance.now()); }
+    }
   }
   turnBox.addEventListener("pointerup", turnUp);
   turnBox.addEventListener("pointercancel", turnUp);
@@ -162,6 +191,22 @@
   // All'apertura il pezzo sta fermo: niente mezzo giro da solo (c'era, tolto
   // su richiesta). A dire che si gira bastano il cursore e "Drag to turn".
 
+  // La luce del palco va un poco verso il puntatore: si muove poco (un terzo
+  // della strada) e con calma, e la transizione la fa il CSS (@property).
+  var heroArt = $("hero-art");
+  if (!CALM && window.matchMedia && matchMedia("(hover: hover)").matches) {
+    heroArt.addEventListener("pointermove", function (e) {
+      var r = heroArt.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      heroArt.style.setProperty("--lx", (50 + (x - 0.5) * 34).toFixed(1) + "%");
+      heroArt.style.setProperty("--ly", (30 + (y - 0.5) * 24).toFixed(1) + "%");
+    });
+    heroArt.addEventListener("pointerleave", function () {
+      heroArt.style.removeProperty("--lx");
+      heroArt.style.removeProperty("--ly");
+    });
+  }
+
   /* --------------------------------------------------------- schermate */
   // La prima e' anche scritta nella pagina: chi arriva col JavaScript spento
   // deve leggerla lo stesso. Le due devono restare uguali.
@@ -174,11 +219,26 @@
   var tabs = [0, 1, 2].map(function (i) { return $("p" + i); });
   var shots = [0, 1, 2].map(function (i) { return $("u" + i); });
 
+  var tabInd = document.querySelector(".tab-ind"), pageAt = -1, noteTimer = 0;
+  function placeTab() {
+    var b = tabs[pageAt];
+    if (!b || !tabInd) return;
+    tabInd.style.setProperty("--x", b.offsetLeft + "px");
+    tabInd.style.setProperty("--w", b.offsetWidth + "px");
+  }
   function showPage(i) {
+    var first = pageAt < 0;
+    pageAt = i;
     tabs.forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
     shots.forEach(function (im, j) { im.classList.toggle("on", j === i); });
-    unote.innerHTML = NOTES[i];
+    placeTab();
+    if (first || CALM) { unote.innerHTML = NOTES[i]; return; }
+    unote.classList.add("swap");
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(function () { unote.innerHTML = NOTES[i]; unote.classList.remove("swap"); }, 200);
   }
+  window.addEventListener("resize", placeTab);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(placeTab); }
   tabs.forEach(function (b, i) {
     b.addEventListener("click", function () { showPage(i); });
     b.addEventListener("keydown", function (e) {
@@ -220,18 +280,24 @@
     box.style.setProperty("--p", cmpAt + "%");
     box.style.setProperty("--r", (100 - cmpAt) + "%");
     grip.setAttribute("aria-valuenow", Math.round(cmpAt));
+    // l'etichetta di un lato sparisce quando la linea le passa sopra
+    box.classList.toggle("edge-l", cmpAt < 16);
+    box.classList.toggle("edge-r", cmpAt > 84);
   }
   function cmpFrom(e) {
     var r = box.getBoundingClientRect();
     cmpSet((e.clientX - r.left) / r.width * 100);
   }
   box.addEventListener("pointerdown", function (e) {
-    cmpDown = true; box.setPointerCapture(e.pointerId); cmpFrom(e); e.preventDefault();
+    cmpStop();
+    cmpDown = true; box.classList.add("dragging");
+    box.setPointerCapture(e.pointerId); cmpFrom(e); e.preventDefault();
   });
   box.addEventListener("pointermove", function (e) { if (cmpDown) { cmpFrom(e); e.preventDefault(); } });
   function cmpUp(e) {
     if (!cmpDown) return;
     cmpDown = false;
+    box.classList.remove("dragging");
     try { box.releasePointerCapture(e.pointerId); } catch (err) {}
   }
   box.addEventListener("pointerup", cmpUp);
@@ -240,6 +306,7 @@
     var d = e.key === "ArrowRight" ? 4 : e.key === "ArrowLeft" ? -4 : 0;
     if (!d) return;
     e.preventDefault();
+    cmpStop();
     cmpSet(cmpAt + d);
   });
 
@@ -289,15 +356,52 @@
   cmpSet(50);
   showEx(0);
 
+  // La prima volta che il confronto e' in vista la linea fa da sola un giro
+  // breve, avanti e indietro, per dire che si trascina. Una volta sola, e si
+  // ferma appena la mano la tocca.
+  var cmpFrame = 0;
+  function cmpStop() { cancelAnimationFrame(cmpFrame); cmpFrame = 0; }
+  function cmpDemo() {
+    var keys = [[0, 50], [700, 74], [1500, 30], [2200, 50]], t0 = 0;
+    var ease = function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+    function step(t) {
+      if (!t0) t0 = t;
+      var e = t - t0, i = 1;
+      while (i < keys.length - 1 && e > keys[i][0]) i++;
+      var a = keys[i - 1], b = keys[i], f = Math.min(1, (e - a[0]) / (b[0] - a[0]));
+      cmpSet(a[1] + (b[1] - a[1]) * ease(f));
+      cmpFrame = e < keys[keys.length - 1][0] ? requestAnimationFrame(step) : 0;
+    }
+    cmpFrame = requestAnimationFrame(step);
+  }
+  if (!CALM && "IntersectionObserver" in window) {
+    var cmpSeen = new IntersectionObserver(function (list) {
+      if (!list[0].isIntersecting) return;
+      cmpSeen.disconnect();
+      setTimeout(cmpDemo, 500);
+    }, { threshold: 0.6 });
+    cmpSeen.observe(box);
+  }
+
   /* ------------------------------------- come funziona: i tre stati */
   // Il passo che sta a meta' schermo decide lo stato del riquadro fermo. Solo
   // su schermo largo: stretto il riquadro non c'e' e ogni passo ha la sua immagine.
-  var howFrame = $("how-frame"), howTrack = $("how-track");
-  var howSteps = document.querySelectorAll(".how-step");
+  var howFrame = $("how-frame"), howBar = $("how-bar"), howLabels = $("how-labels");
+  var howSteps = document.querySelectorAll(".how-step"), howAt = 0;
   function howShow(k) {
+    // dal disegno al tracciato passa lo scanner: la riga attraversa il foglio
+    // insieme al taglio che scopre il tracciato
+    if (k === 1 && howAt === 0 && !CALM) {
+      howFrame.classList.remove("scanning");
+      void howFrame.offsetWidth;                  // per far ripartire l'animazione
+      howFrame.classList.add("scanning");
+    }
+    howAt = k;
     howFrame.setAttribute("data-step", k);
     Array.prototype.forEach.call(howSteps, function (li, j) { li.classList.toggle("on", j === k); });
-    Array.prototype.forEach.call(howTrack.children, function (t, j) { t.classList.toggle("on", j <= k); });
+    Array.prototype.forEach.call(howLabels.children, function (t, j) { t.classList.toggle("on", j <= k); });
+    // il filo: dove il CSS lo lega allo scorrimento questo valore non conta
+    howBar.style.setProperty("--f", [0.12, 0.55, 1][k]);
   }
   if ("IntersectionObserver" in window) {
     var howSeen = new IntersectionObserver(function (list) {
@@ -769,6 +873,9 @@
     tv.tip.hidden = !step.tip;
     tv.tip.innerHTML = step.tip || "";
     tv.text.scrollTop = 0;
+    tv.text.classList.remove("enter");
+    void tv.text.offsetWidth;
+    tv.text.classList.add("enter");
 
     if (url) {
       tv.todo.hidden = true;
@@ -876,19 +983,109 @@
   });
   refreshBuy();
 
-  /* ------------------------------------------ le sezioni entrano in vista */
-  // Solo quelle ancora sotto il bordo: una sezione gia' in vista al caricamento
-  // non deve sparire e ricomparire.
-  if ("IntersectionObserver" in window) {
+  /* ------------------------------------------------ le cose che entrano */
+  // I titoli con data-split entrano parola per parola: ogni parola va nel suo
+  // <span class="w">, con il suo numero d'ordine per il ritardo. Gli elementi
+  // dentro il titolo (la seconda frase in grigio) restano dove sono, e le loro
+  // parole continuano la numerazione. Lo screen reader legge il testo intero.
+  function split(el) {
+    var n = 0;
+    (function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 1) { walk(c); return; }
+        if (c.nodeType !== 3 || !c.nodeValue.trim()) return;
+        var frag = document.createDocumentFragment();
+        c.nodeValue.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement("span");
+          w.className = "w";
+          w.style.setProperty("--i", n++);
+          w.textContent = part;
+          frag.appendChild(w);
+        });
+        node.replaceChild(frag, c);
+      });
+    })(el);
+  }
+  document.querySelectorAll("[data-split]").forEach(split);
+
+  // La hero entra subito (quando i caratteri sono pronti, per non far
+  // entrare una parola nel font di ripiego); il resto quando arriva in vista.
+  var hero = document.querySelector(".hero");
+  function heroIn() {
+    // arrivati qui lo script ha girato tutto: la rete in testa alla pagina
+    // (.late dopo tre secondi) non serve piu'
+    clearTimeout(window.lateTimer);
+    root.classList.add("ready");
+    hero.querySelectorAll("[data-reveal], [data-split]").forEach(function (el) { el.classList.add("in"); });
+  }
+  var fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  Promise.race([fontsReady, new Promise(function (ok) { setTimeout(ok, 700); })]).then(function () {
+    // un giro di pausa perche' il browser disegni lo stato di partenza: senza,
+    // le transizioni partirebbero gia' arrivate
+    setTimeout(heroIn, 30);
+  });
+
+  var later = Array.prototype.filter.call(document.querySelectorAll("main [data-reveal], main [data-split]"),
+    function (el) { return !hero.contains(el); });
+  if ("IntersectionObserver" in window && !CALM) {
     var seen = new IntersectionObserver(function (list) {
       list.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add("in"); seen.unobserve(e.target); }
       });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
-    document.querySelectorAll("main .sec-head, main .facts, main .ex-show, main .app-show, main .tiles, main .cinema, main .plans, main .faq-wrap, main .outro").forEach(function (el) {
-      if (el.getBoundingClientRect().top < window.innerHeight) return;
-      el.classList.add("reveal");
-      seen.observe(el);
+    }, { rootMargin: "0px 0px -9% 0px", threshold: 0.01 });
+    later.forEach(function (el) { seen.observe(el); });
+  } else {
+    later.forEach(function (el) { el.classList.add("in"); });
+  }
+
+  /* --------------------------------------------- la barra e le sezioni */
+  // Appena la pagina scorre la barra diventa una pillola di vetro; il segno
+  // sotto le voci sta sulla sezione che occupa il centro dello schermo.
+  var nav = document.querySelector(".topnav"), navInd = document.querySelector(".nav-ind");
+  var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll("a")) : [];
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (list) {
+      root.classList.toggle("scrolled", !list[0].isIntersecting);
+    }).observe(document.querySelector(".sentinel"));
+
+    var live = {};
+    function mark() {
+      var cur = null;
+      navLinks.forEach(function (a) {
+        var on = !!live[a.getAttribute("href").slice(1)] && !cur;
+        if (on) cur = a;
+        a.setAttribute("aria-current", on ? "true" : "false");
+      });
+      if (!navInd) return;
+      navInd.classList.toggle("on", !!cur);
+      if (cur) {
+        navInd.style.setProperty("--x", cur.offsetLeft + "px");
+        navInd.style.setProperty("--w", cur.offsetWidth + "px");
+      }
+    }
+    var spy = new IntersectionObserver(function (list) {
+      list.forEach(function (e) { live[e.target.id] = e.isIntersecting; });
+      mark();
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    navLinks.forEach(function (a) {
+      var sec = document.getElementById(a.getAttribute("href").slice(1));
+      if (sec) spy.observe(sec);
+    });
+  }
+
+  // Sui prezzi la luce segue il puntatore: sul fondo e sul bordo delle due
+  // card insieme, ognuna misurata sulla propria posizione.
+  var plans = document.querySelector(".plans");
+  if (plans && !CALM && window.matchMedia && matchMedia("(hover: hover)").matches) {
+    var cards = plans.querySelectorAll(".plan");
+    plans.addEventListener("pointermove", function (e) {
+      Array.prototype.forEach.call(cards, function (c) {
+        var r = c.getBoundingClientRect();
+        c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        c.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
     });
   }
 
