@@ -345,7 +345,9 @@ b{font-weight:600}
   display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);
   gap:clamp(32px,5vw,112px);align-items:center;
   padding-block:clamp(20px,3vh,48px) clamp(40px,5vh,72px);
-  min-height:min(calc(100dvh - var(--bar) - 84px),1100px);
+  /* la hero lascia in vista, sotto di se', la riga dei quattro fatti con
+     un po' d'aria: sono la prima cosa da sapere, non vanno cercati scorrendo */
+  min-height:min(calc(100dvh - var(--bar) - 89px),1100px);
 }
 .hero-copy{display:flex;flex-direction:column;gap:clamp(22px,2vw,34px);align-items:flex-start}
 .hero-sub{font-size:clamp(18px,1.35vw,26px);line-height:1.45;color:var(--ink-2);max-width:25em}
@@ -354,7 +356,7 @@ b{font-weight:600}
 
 /* il palco della hero: il pezzo ci sta sopra senza cornice, con la sua ombra */
 .hero-stage{
-  height:clamp(440px,calc(100dvh - var(--bar) - 150px),1040px);
+  height:clamp(440px,calc(100dvh - var(--bar) - 196px),1040px);
   box-shadow:var(--shadow-lift),inset 0 1px 0 rgba(255,255,255,.05);
 }
 .hero-stage .floor{bottom:12.5%;width:44%}
