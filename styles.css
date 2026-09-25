@@ -770,11 +770,19 @@ dialog.tour{
   .tour-body{grid-template-columns:minmax(0,1fr) 310px}
 }
 @media (max-width:860px){
-  /* in colonna scorre tutto il corpo: la schermata sopra, il testo sotto */
+  /* In colonna la schermata resta ferma in alto e scorre solo il testo
+     sotto: mentre si leggono i punti, i riquadri numerati restano in vista.
+     In fondo al testo una dissolvenza dice che ce n'e' ancora; l'ultimo
+     margine e' alto quanto lei, cosi' arrivati in fondo non copre niente. */
   dialog.tour{height:calc(100dvh - 24px)}
-  .tour-body{display:block;overflow:auto}
-  .tour-stage{padding:10px;overflow:visible}
-  .tour-text{border-left:0;border-top:1px solid var(--rule-soft);overflow:visible;padding:16px 16px 20px}
+  .tour-body{display:flex;flex-direction:column;overflow:hidden}
+  .tour-stage{flex:none;padding:10px;overflow:visible}
+  .tour-text{
+    flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;
+    border-left:0;border-top:1px solid var(--rule-soft);padding:16px 16px 36px;
+    -webkit-mask-image:linear-gradient(#000 calc(100% - 32px),transparent);
+    mask-image:linear-gradient(#000 calc(100% - 32px),transparent);
+  }
   .tour-text h3{font-size:23px}
 }
 @media (max-width:640px){

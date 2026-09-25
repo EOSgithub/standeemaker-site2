@@ -678,12 +678,13 @@
     var cs = getComputedStyle(tv.stage);
     var w = tv.stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     var h = tv.stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    var stacked = getComputedStyle(tv.stage.parentNode).display === "block";
+    var stacked = getComputedStyle(tv.stage.parentNode).flexDirection === "column";
     if (!stacked && w / h > ar) { w = h * ar; }
-    // Impilato, il palco e' largo quanto lo schermo e alto quanto serve: una
-    // foto verticale a tutta larghezza spingerebbe titolo e testo sotto il
-    // bordo. Non piu' di tre quinti dell'altezza, e si stringe in larghezza.
-    if (stacked) { w = Math.min(w, window.innerHeight * 0.6 * ar); }
+    // Impilato (il telefono), la schermata sta ferma in alto e sotto scorre
+    // solo il testo: il palco e' largo quanto lo schermo e alto quanto serve.
+    // Non piu' di due quinti dell'altezza, perche' al testo resti spazio per
+    // leggere; una foto verticale si stringe in larghezza invece di crescere.
+    if (stacked) { w = Math.min(w, window.innerHeight * 0.4 * ar); }
     tv.shot.style.width = Math.floor(w) + "px";
     tv.shot.style.height = Math.floor(w / ar) + "px";
     draw();
