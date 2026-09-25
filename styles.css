@@ -715,7 +715,9 @@ dialog.tour{
 .tour-badge circle{fill:var(--note);stroke:var(--note-halo);stroke-width:2px;vector-effect:non-scaling-stroke}
 .tour-badge text{fill:var(--note-ink);font-family:var(--mono);font-weight:500;text-anchor:middle;dominant-baseline:central}
 .tour-mark,.tour-badge{cursor:pointer;transition:opacity .2s}
-.tour-mark.off,.tour-badge.off{opacity:.28}
+/* scelto un punto, gli altri segni spariscono (e non si cliccano piu'):
+   sulla schermata resta solo quello di cui parla il testo */
+.tour-mark.off,.tour-badge.off{opacity:0;pointer-events:none}
 .tour-pulse{
   fill:none;stroke:var(--note);stroke-width:2.5px;vector-effect:non-scaling-stroke;
   transform-box:fill-box;transform-origin:center;animation:tour-pulse 1.6s ease-out infinite;
